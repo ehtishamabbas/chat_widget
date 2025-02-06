@@ -1,136 +1,126 @@
-class ChatWidget extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: "open" });
+document.addEventListener("DOMContentLoaded", function () {
+  // Create and style the widget elements
+  const chatWidget = document.createElement('div');
+  chatWidget.style.position = 'fixed';
+  chatWidget.style.bottom = '20px';
+  chatWidget.style.right = '20px';
+  chatWidget.style.width = '300px';
+  chatWidget.style.fontFamily = 'Arial, sans-serif';
 
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          width: 300px;
-          font-family: Arial, sans-serif;
-        }
-        .chat-container {
-          background-color: #fff;
-          border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-          flex-direction: column;
-          display: flex;  /* Ensure chat container is visible */
-        }
-        .chat-header {
-          background-color: #007bff;
-          color: white;
-          padding: 10px;
-          text-align: center;
-          cursor: pointer;
-          border-radius: 10px 10px 0 0;
-        }
-        .chat-body {
-          display: flex;
-          flex-direction: column;
-          padding: 10px;
-          height: 250px;
-          overflow-y: auto;
-        }
-        .messages {
-          flex-grow: 1;
-          overflow-y: auto;
-          max-height: 200px;
-        }
-        .input-container {
-          display: flex;
-          padding: 5px;
-        }
-        input {
-          flex-grow: 1;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-        }
-        button {
-          background-color: #007bff;
-          color: white;
-          border: none;
-          padding: 10px;
-          border-radius: 5px;
-          cursor: pointer;
-          margin-left: 5px;
-        }
-        .toggle-btn {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          background-color: #007bff;
-          color: white;
-          border: none;
-          padding: 10px;
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
-          cursor: pointer;
-          font-size: 16px;
-        }
-      </style>
+  // Create the chat container
+  const chatContainer = document.createElement('div');
+  chatContainer.style.backgroundColor = '#fff';
+  chatContainer.style.borderRadius = '10px';
+  chatContainer.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+  chatContainer.style.display = 'none'; // Initially hidden
+  chatContainer.style.flexDirection = 'column';
 
-      <button class="toggle-btn">💬</button>
+  // Create the chat header
+  const chatHeader = document.createElement('div');
+  chatHeader.textContent = 'Chat with us!';
+  chatHeader.style.backgroundColor = '#007bff';
+  chatHeader.style.color = 'white';
+  chatHeader.style.padding = '10px';
+  chatHeader.style.textAlign = 'center';
+  chatHeader.style.cursor = 'pointer';
+  chatHeader.style.borderRadius = '10px 10px 0 0';
 
-      <div class="chat-container">
-        <div class="chat-header">Chat with us!</div>
-        <div class="chat-body">
-          <div class="messages"></div>
-          <div class="input-container">
-            <input type="text" placeholder="Type a message..." />
-            <button class="send-btn">Send</button>
-          </div>
-        </div>
-      </div>
-    `;
+  // Create the chat body
+  const chatBody = document.createElement('div');
+  chatBody.style.display = 'flex';
+  chatBody.style.flexDirection = 'column';
+  chatBody.style.padding = '10px';
+  chatBody.style.height = '250px';
+  chatBody.style.overflowY = 'auto';
 
-    this.isOpen = true; // Make sure the chat is visible initially for testing
-    this.initChat();
-  }
+  // Create the messages area
+  const messages = document.createElement('div');
+  messages.style.flexGrow = '1';
+  messages.style.overflowY = 'auto';
+  messages.style.maxHeight = '200px';
 
-  initChat() {
-    const toggleBtn = this.shadowRoot.querySelector(".toggle-btn");
-    const chatContainer = this.shadowRoot.querySelector(".chat-container");
-    const sendButton = this.shadowRoot.querySelector(".send-btn");
-    const inputField = this.shadowRoot.querySelector("input");
-    const messages = this.shadowRoot.querySelector(".messages");
+  // Create the input container
+  const inputContainer = document.createElement('div');
+  inputContainer.style.display = 'flex';
+  inputContainer.style.padding = '5px';
 
-    toggleBtn.addEventListener("click", () => {
-      this.isOpen = !this.isOpen;
-      chatContainer.style.display = this.isOpen ? "flex" : "none";
-    });
+  const inputField = document.createElement('input');
+  inputField.type = 'text';
+  inputField.placeholder = 'Type a message...';
+  inputField.style.flexGrow = '1';
+  inputField.style.padding = '10px';
+  inputField.style.border = '1px solid #ccc';
+  inputField.style.borderRadius = '5px';
 
-    sendButton.addEventListener("click", () => {
-      this.sendMessage(inputField.value);
-      inputField.value = "";
-    });
+  const sendButton = document.createElement('button');
+  sendButton.textContent = 'Send';
+  sendButton.style.backgroundColor = '#007bff';
+  sendButton.style.color = 'white';
+  sendButton.style.border = 'none';
+  sendButton.style.padding = '10px';
+  sendButton.style.borderRadius = '5px';
+  sendButton.style.cursor = 'pointer';
+  sendButton.style.marginLeft = '5px';
 
-    inputField.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        this.sendMessage(inputField.value);
-        inputField.value = "";
+  // Create the toggle button for showing/hiding the chat
+  const toggleButton = document.createElement('button');
+  toggleButton.textContent = '💬';
+  toggleButton.style.position = 'fixed';
+  toggleButton.style.bottom = '20px';
+  toggleButton.style.right = '20px';
+  toggleButton.style.backgroundColor = '#007bff';
+  toggleButton.style.color = 'white';
+  toggleButton.style.border = 'none';
+  toggleButton.style.padding = '10px';
+  toggleButton.style.borderRadius = '50%';
+  toggleButton.style.width = '50px';
+  toggleButton.style.height = '50px';
+  toggleButton.style.cursor = 'pointer';
+  toggleButton.style.fontSize = '16px';
+
+  // Append elements to the DOM
+  inputContainer.appendChild(inputField);
+  inputContainer.appendChild(sendButton);
+  chatBody.appendChild(messages);
+  chatBody.appendChild(inputContainer);
+  chatContainer.appendChild(chatHeader);
+  chatContainer.appendChild(chatBody);
+  chatWidget.appendChild(toggleButton);
+  chatWidget.appendChild(chatContainer);
+  document.body.appendChild(chatWidget);
+
+  // Toggle chat container visibility
+  let isChatOpen = false;
+  toggleButton.addEventListener('click', () => {
+      isChatOpen = !isChatOpen;
+      chatContainer.style.display = isChatOpen ? 'flex' : 'none';
+  });
+
+  // Send message when the send button is clicked
+  sendButton.addEventListener('click', () => {
+      sendMessage(inputField.value);
+      inputField.value = ''; // Clear input field after sending
+  });
+
+  // Send message when "Enter" key is pressed
+  inputField.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+          sendMessage(inputField.value);
+          inputField.value = ''; // Clear input field after sending
       }
-    });
+  });
+
+  // Function to append a new message to the chat
+  function sendMessage(message) {
+      if (!message.trim()) return;
+
+      const newMessage = document.createElement('div');
+      newMessage.textContent = message;
+      newMessage.style.padding = '5px';
+      newMessage.style.margin = '5px';
+      newMessage.style.background = '#f1f1f1';
+      newMessage.style.borderRadius = '5px';
+      messages.appendChild(newMessage);
+      messages.scrollTop = messages.scrollHeight; // Scroll to the latest message
   }
-
-  sendMessage(message) {
-    if (!message.trim()) return;
-
-    const messages = this.shadowRoot.querySelector(".messages");
-    const newMessage = document.createElement("div");
-    newMessage.textContent = message;
-    newMessage.style.padding = "5px";
-    newMessage.style.margin = "5px";
-    newMessage.style.background = "#f1f1f1";
-    newMessage.style.borderRadius = "5px";
-
-    messages.appendChild(newMessage);
-    messages.scrollTop = messages.scrollHeight;
-  }
-}
-
-customElements.define("chat-widget", ChatWidget);
+});
