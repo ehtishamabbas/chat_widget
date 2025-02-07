@@ -73,8 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
   toggleButton.style.border = 'none';
   toggleButton.style.padding = '10px';
   toggleButton.style.borderRadius = '50%';
-  toggleButton.style.width = '200px';
-  toggleButton.style.height = '200px';
+  toggleButton.style.width = '50px';
+  toggleButton.style.height = '50px';
   toggleButton.style.cursor = 'pointer';
   toggleButton.style.fontSize = '16px';
 
