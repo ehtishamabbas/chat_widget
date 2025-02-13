@@ -152,8 +152,9 @@ function renderAssistantDetails(assistantDetails) {
     assistantDetails.greetingText;
   document.getElementById("host-name").textContent =
     assistantDetails.assistantName;
-  document.querySelector("#host-image").src =
-    assistantDetails.assistantAvatar || "assets/images/host_default.svg";
+    if( assistantDetails.assistantAvatar){
+      document.querySelector("#host-image").src = assistantDetails.assistantAvatar ;
+    }
 }
 
 // get the user details from the cookie
