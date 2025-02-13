@@ -35,6 +35,28 @@
             var script = document.createElement("script");
             script.src = "https://ehtishamabbas.github.io/chat_widget/script.js";
             document.body.appendChild(script);
+
+
+              // Now set event listeners for opening and closing the chat widget
+              const openChatButton = document.getElementById("open-chat");
+              const chatWidget = document.getElementById("chat-widget");
+              const closeChatButton = document.getElementById("toggle-chat");
+
+              // Handle opening the chat widget
+              if (openChatButton && chatWidget) {
+                  openChatButton.addEventListener("click", function () {
+                      chatWidget.classList.remove("hidden");
+                  });
+              }
+
+              // Handle closing the chat widget
+              if (closeChatButton && chatWidget) {
+                  closeChatButton.addEventListener("click", function () {
+                      chatWidget.classList.add("hidden");
+                  });
+              }
+
+
         })
         .catch(error => console.error("Error loading chat widget:", error));
 
