@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let conversations = getConversationDetail();
   const assistantDetails = {
     assistantName: "Alice",
-    assistantAvatar: "assets/images/organization.png",
+    assistantAvatar: "",
     greetingText: "Hi, I'm Alice. How can I help you today?",
   };
 
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // organization details mock object for the chat widget
   const organizationDetails = {
     name: "Payman Club",
-    logo: "assets/images/organization.png",
+    logo: "",
     description: "Organization Description",
   };
 
