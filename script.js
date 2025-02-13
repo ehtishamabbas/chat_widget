@@ -138,10 +138,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // render the organization details
 function renderOrganizationDetails(organizationDetails) {
-  document.querySelector(".organization-image").src =
-    organizationDetails.logo || "assets/images/organization_default.svg";
-  document.querySelector(".organization-name").textContent =
-    organizationDetails.name;
+  if(organizationDetails.logo){
+    document.querySelector(".organization-image").src = organizationDetails.logo;
+  }
+  if( organizationDetails.name){
+    document.querySelector(".organization-name").textContent = organizationDetails.name;
+  }
 }
 
 // render the assistant details
