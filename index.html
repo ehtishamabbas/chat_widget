@@ -1,13 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Widget Test</title>
-    <script src="https://ehtishamabbas.github.io/chat_widget/chat-widget.js" defer></script>
-   
-</head>
-<body>
-    <h1>Testing Chat Widget</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Widget</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Chat Icon at the bottom right -->
+    <div id="chat-icon">
+      <button id="open-chat" aria-label="Chat with us">
+        <img
+          src="assets/images/chat-icon.svg"
+          alt="Chat Icon"
+          class="chat-icon-svg"
+        />
+      </button>
+    </div>
+
+    <!-- Chat Widget -->
+
+    <div id="chat-widget" class="hidden">
+      <!-- Chat Loader -->
+      <div class="chat-loader-overlay">
+        <div class="chat-loader"></div>
+      </div>
+
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <!-- Organization Section -->
+        <div class="chat-header-organization-section">
+          <img
+            src="assets/images/organization_default.svg"
+            alt=""
+            class="organization-image"
+          />
+          <span class="organization-name"></span>
+        </div>
+        <button id="toggle-chat">
+          <img src="assets/images/close.svg" alt="" class="close-icon" />
+        </button>
+      </div>
+      <div class="chat-body" id="chat-body">
+        <div id="messages">
+          <div class="single-thread">
+            <img
+              src="assets/images/host_default.svg"
+              alt=""
+              class="sender-image"
+              id="host-image"
+            />
+            <div>
+              <div class="received_message" id="greetingText"></div>
+              <div class="received_message">
+                Please fill out this form so we can contact you
+              </div>
+              <!--form inputs-->
+              <div id="containerForm">
+                <div class="received_message">
+                  <span>Please enter your name</span>
+                  <div class="form-group">
+                    <div class="form-input-error-container">
+                      <input
+                        type="text"
+                        id="user-name"
+                        placeholder="Enter your name"
+                        class="form-input"
+                      />
+                      <span class="error-message"
+                        >Please enter a valid name.</span
+                      >
+                    </div>
+
+                    <button
+                      id="addNextStep"
+                      class="next-btn addNextStep"
+                      disabled
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- host name -->
+          <div class="host-name" id="host-name"></div>
+        </div>
+
+        <!-- Chat Input footer -->
+        <div class="chat-input">
+          <input
+            type="text"
+            id="user-message"
+            placeholder="Type a message..."
+          />
+          <button id="send-message">
+            <img src="assets/images/send_icon.svg" alt="" class="send-icon" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
