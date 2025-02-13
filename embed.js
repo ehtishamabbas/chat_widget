@@ -13,8 +13,7 @@
     fetch("https://ehtishamabbas.github.io/chat_widget/index.html") 
         .then(response => response.text())
         .then(html => {
-            chatContainer.innerHTML = html;
-            
+                        
             // Replace relative asset paths
             html = html.replace(/(src|href)="assets\//g, `$1="https://ehtishamabbas.github.io/chat_widget/assets/`);
 
