@@ -13,20 +13,13 @@
     fetch("https://ehtishamabbas.github.io/chat_widget/index.html") 
         .then(response => response.text())
         .then(html => {
-            chatContainer.innerHTML = html;
 
             // Replace all src and href for assets (including background images and external links)
             html = html.replace(/(src|href)="assets\//g, `$1="https://ehtishamabbas.github.io/chat_widget/assets/`);
 
-            // Additionally, replace background images in styles (like inline styles for elements)
-            html = html.replace(/url\(['"]?assets\//g, `url('https://ehtishamabbas.github.io/chat_widget/assets/`);
-
-            // Parse the modified HTML string to a document
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
+        
             // Update chat-container's innerHTML with the new HTML content
-            chatContainer.innerHTML = doc.body.innerHTML;
+            chatContainer.innerHTML = html;
 
             // Append styles to the page
             var link = document.createElement("link");
