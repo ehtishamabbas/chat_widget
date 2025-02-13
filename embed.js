@@ -10,7 +10,7 @@
     chatContainer.style.zIndex = "9999";
 
     // Load the chat widget HTML
-    fetch("https://yourdomain.com/chat-widget/index.html") // Update with your hosted URL
+    fetch("https://ehtishamabbas.github.io/chat_widget/index.html") // Update with your hosted URL
         .then(response => response.text())
         .then(html => {
              // Replace relative asset paths
