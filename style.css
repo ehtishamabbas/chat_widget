@@ -127,7 +127,7 @@
 }
 
 .chat-header-organization-section .organization-name {
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
@@ -189,7 +189,7 @@
 }
 
 .host-name {
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
@@ -206,7 +206,7 @@
   border-radius: 16px;
   padding: 16px;
   background: rgba(244, 246, 248, 1);
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
@@ -227,7 +227,7 @@
 .form-input {
   height: 100%;
   border: none;
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 400;
   font-size: 14px;
   line-height: 24px;
@@ -246,7 +246,7 @@
 .form-input-withError {
   height: 100%;
   border: none;
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 400;
   font-size: 14px;
   line-height: 24px;
@@ -258,7 +258,7 @@
 }
 
 .error-message {
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
@@ -274,7 +274,7 @@
 
 .next-btn {
   border: none;
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 600;
   font-size: 14px;
   line-height: 24px;
@@ -305,7 +305,7 @@
   width: 100%;
   height: 100%;
   border: none;
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 400;
   font-size: 14px;
   line-height: 24px;
@@ -351,7 +351,7 @@
   max-width: 80%;
   border-radius: 16px;
   padding: 16px;
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
@@ -364,7 +364,7 @@
 .divider {
   display: flex;
   align-items: center;
-  font-family: "Nunito";
+  font-family: "Nunito" !important;
   font-weight: 500;
   font-size: 14px;
   line-height: 24px;
