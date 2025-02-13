@@ -18,9 +18,6 @@
                 // Replace relative asset paths
                 html = html.replace(/(src|href)="assets\//g, `$1="https://ehtishamabbas.github.io/chat_widget/assets/`);
 
-                // Additionally handle inline CSS background images and other asset-related attributes
-                html = html.replace(/url\(['"]?assets\//g, `url('https://ehtishamabbas.github.io/chat_widget/assets/`);
-
                 chatContainer.innerHTML = html;
 
                 // Append styles to the page
