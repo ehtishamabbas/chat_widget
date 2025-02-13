@@ -302,7 +302,6 @@ function scrollToBottom() {
 // Function to render messages
 function renderMessages(messages, assistantDetails) {
   const chatContainer = document.getElementById("messages");
-  const hostImageSrc = "assets/images/host_default.svg";
   const fragment = document.createDocumentFragment();
 
   messages.forEach((message, index) => {
@@ -326,7 +325,7 @@ function renderMessages(messages, assistantDetails) {
       messageDiv.innerHTML = `
       ${
         index + 1 === messages.length || messages[index + 1].isGuest
-          ? `<img src="${hostImageSrc}" alt="" class="sender-image" id="host-image"> `
+          ? `<img src="${message.logo ? message.logo: "https://ehtishamabbas.github.io/chat_widget/assets/images/host_default.svg"}" alt="" class="sender-image" id="host-image"> `
           : ""
       }
       <div class="received_message" ${
