@@ -15,8 +15,10 @@
         fetch("https://ehtishamabbas.github.io/chat_widget/index.html")
             .then(response => response.text())
             .then(html => {
-                chatContainer.innerHTML = chatContainer.innerHTML.replace(/(src|href)="assets\//g, `$1="https://ehtishamabbas.github.io/chat_widget/assets/`);
+                chatContainer.innerHTML = html;
 
+                // Fix relative asset paths (only needed if they don't load properly)
+                chatContainer.innerHTML = chatContainer.innerHTML.replace(/(src|href)="assets\//g, `$1="https://ehtishamabbas.github.io/chat_widget/assets/`);
                 // Append styles to the page
                 var link = document.createElement("link");
                 link.rel = "stylesheet";
