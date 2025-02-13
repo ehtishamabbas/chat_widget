@@ -23,12 +23,12 @@
             // Append styles to the page
             var link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = "https://yourdomain.com/chat-widget/style.css"; // Update URL
+            link.href = "https://ehtishamabbas.github.io/chat_widget/style.css"; // Update URL
             document.head.appendChild(link);
 
             // Append scripts to the page
             var script = document.createElement("script");
-            script.src = "https://yourdomain.com/chat-widget/script.js"; // Update URL
+            script.src = "https://ehtishamabbas.github.io/chat_widget/script.js"; // Update URL
             document.body.appendChild(script);
         })
         .catch(error => console.error("Error loading chat widget:", error));
