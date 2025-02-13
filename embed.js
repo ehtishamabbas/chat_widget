@@ -1,33 +1,23 @@
-(function () {
-    if (document.getElementById("chat-widget-container")) return; // Prevent duplicates
-
-    // Create a container div for the chat widget
-    var chatContainer = document.createElement("div");
-    chatContainer.id = "chat-widget-container";
-    chatContainer.style.position = "fixed";
-    chatContainer.style.bottom = "20px";
-    chatContainer.style.right = "20px";
-    chatContainer.style.zIndex = "9999";
-
-    // Load the chat widget HTML
-    fetch("https://ehtishamabbas.github.io/chat_widget/index.html") 
-        .then(response => response.text())
-        .then(html => {
-            chatContainer.innerHTML = html;
-
-            // Append styles to the page
-            var link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = "https://ehtishamabbas.github.io/chat_widget/style.css";
-            document.head.appendChild(link);
-
-            // Append scripts to the page
-            var script = document.createElement("script");
-            script.src = "https://ehtishamabbas.github.io/chat_widget/script.js";
-            document.body.appendChild(script);
-        })
-        .catch(error => console.error("Error loading chat widget:", error));
-
-    // Append the container to the body
-    document.body.appendChild(chatContainer);
-})();
+// Wait for the DOM to be fully loaded
+document.addEventListener("DOMContentLoaded", function () {
+    // Get the chat button and chat widget elements
+    const chatButton = document.getElementById("open-chat");
+    const chatWidget = document.getElementById("chat-widget");
+    const closeButton = document.getElementById("toggle-chat");
+  
+    // Check if the elements are present to avoid errors
+    if (chatButton && chatWidget && closeButton) {
+      // Function to toggle the visibility of the chat widget
+      const toggleChatWidget = () => {
+        // Toggle the 'hidden' class on the chat widget
+        chatWidget.classList.toggle("hidden");
+      };
+  
+      // When the chat button is clicked, show the chat widget
+      chatButton.addEventListener("click", toggleChatWidget);
+  
+      // When the close button is clicked, hide the chat widget
+      closeButton.addEventListener("click", toggleChatWidget);
+    }
+  });
+  
