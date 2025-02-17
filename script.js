@@ -19,43 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     greetingText: "Hi, I'm Alice. How can I help you today?",
   };
 
-  let messages =  [
-    {
-      messageId: "msg_001",
-      isGuest: true,
-      text: "Hey Alic, how are you?",
-      timestamp: "2025-02-11T10:00:00Z",
-      isread: true,
-    },
-    {
-      messageId: "msg_002",
-      isGuest: false,
-      text: "Hey Alice, I'm good! How about you?",
-      timestamp: "2025-02-11T10:01:00Z",
-      isread: false,
-    },
-    {
-      messageId: "msg_003",
-      isGuest: true,
-      text: "I'm doing great. Are we still meeting at 5 PM?",
-      timestamp: "2025-02-11T10:02:00Z",
-      isread: true,
-    },
-    {
-      messageId: "msg_004",
-      isGuest: false,
-      text: "Yes, see you then!",
-      timestamp: "2025-02-11T10:03:00Z",
-      isread: false,
-    },
-    {
-      messageId: "msg_004",
-      isGuest: false,
-      text: "I'll call you before arriving.",
-      timestamp: "2025-02-11T10:03:00Z",
-      isread: false,
-    }
-  ];
+  let messages = [];
   // if (conversations.length > 0) {
   //   messages = conversations;
   // }
