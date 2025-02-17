@@ -20,9 +20,9 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   let messages = [];
-  // if (conversations.length > 0) {
-  //   messages = conversations;
-  // }
+  if (conversations.length > 0) {
+    messages = conversations;
+  }
 
   // organization details mock object for the chat widget
   const organizationDetails = {
