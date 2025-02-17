@@ -361,7 +361,7 @@ function renderMessages(messages, assistantDetails) {
       messageDiv.innerHTML = `
       ${
         index + 1 === messages.length || messages[index + 1].isGuest
-          ? `<img src="${message.logo ? message.logo: "assets/images/host_default.svg"}" alt="" class="sender-image" id="host-image"> `
+          ? `<img src="${message.logo ? message.logo: "https://ehtishamabbas.github.io/chat_widget/assets/images/host_default.svg"}" alt="" class="sender-image" id="host-image"> `
           : ""
       }
       <div class="received_message" ${
