@@ -47,7 +47,8 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 1000;visibility: hidden;
+
 }
 
 #chat-icon button {
@@ -202,7 +203,7 @@
 /* message bar  */
 .received_message {
   margin-bottom: 8px;
-  max-width: 80%;
+  max-width: 85%;
   border-radius: 16px;
   padding: 16px;
   background: rgba(244, 246, 248, 1);
@@ -380,4 +381,8 @@
   padding: 0.5px;
   background-color: rgba(145, 158, 171, 0.8);
   margin: 5px;
+}
+
+.last-name-error{
+  display: none;
 }

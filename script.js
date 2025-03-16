@@ -1,5 +1,10 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  const chatContainer = document.getElementById("chat-widget-container");
+  const brandId = chatContainer
+    ? chatContainer.getAttribute("data-brand-id")
+    : null;
   const chatIcon = document.getElementById("open-chat");
+  const widgetIcon = document.getElementById("chat-icon");
   const chatWidget = document.getElementById("chat-widget");
   const closeChat = document.getElementById("toggle-chat");
   const widgetHeader = document.getElementsByClassName("chat-header");
@@ -9,14 +14,32 @@ document.addEventListener("DOMContentLoaded", function () {
   const widgetLoader = document.getElementsByClassName("chat-loader-overlay");
   const chatInput = document.getElementById("user-message");
 
+  var brandName = getQueryParam("brandName");
+  var brandLogo = getQueryParam("brandLogo");
+
+  if (Boolean(brandId)) {
+    localStorage.setItem("brandId", brandId);
+  }
+
+  let widgetSettings = await getChatWidgetSettings(brandId);
+  
+  if (
+    widgetSettings &&
+    Object.keys(widgetSettings).length > 0 &&
+    widgetSettings.widget_enabled
+  ) {
+    widgetIcon.style.visibility = "visible";
+  }
+
   // Get user details from cookies if they exist
   getUserDetails();
+
   // get the conversation details from the cookie
   let conversations = getConversationDetail();
   const assistantDetails = {
     assistantName: "Alice",
     assistantAvatar: "",
-    greetingText: "Hi, I'm Alice. How can I help you today?",
+    greetingText: widgetSettings.greeting_text ?  widgetSettings.greeting_text :  "",
   };
 
   let messages = [];
@@ -24,15 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
     messages = conversations;
   }
 
-  // organization details mock object for the chat widget
-  const organizationDetails = {
-    name: "Payman Club",
-    logo: "",
-    description: "Organization Description",
-  };
-
   // render the organization details
-  renderOrganizationDetails(organizationDetails);
+  renderOrganizationDetails(brandName, brandLogo);
 
   // render Assistant Details
   renderAssistantDetails(assistantDetails);
@@ -40,9 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // render the conversation
   renderMessages(messages, assistantDetails);
 
-  
-
-  // handle unread messages on click and scroll 
+  // handle unread messages on click and scroll
   widgetBodyById.addEventListener("click", function () {
     markMessagesAsRead(messages);
     scrollToBottom();
@@ -50,16 +64,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   messagesBody.addEventListener("scroll", function () {
     let separator = document.querySelector(".divider");
-    if(widgetBody[0].style.visibility === "visible" && separator){
-      console.log("called", widgetBody[0].style.visibility);
+    if (widgetBody[0].style.visibility === "visible" && separator) {
       markMessagesAsRead(messages);
     }
   });
 
   // widget open
-  chatIcon.addEventListener("click", function () {
+  chatIcon.addEventListener("click", async function () {
     chatWidget.classList.toggle("visible");
-    showWidget(widgetLoader, widgetHeader, widgetBody)
+    showWidget(widgetLoader, widgetHeader, widgetBody);
     scrollToBottom();
   });
 
@@ -80,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle the form phone number section
   document.getElementById("addNextStep").addEventListener("click", function () {
-    let userName = document.getElementById("user-name");
+    let userName = document.getElementById("first-name");
     let errorDiv = document.getElementsByClassName("error-message");
     if (isValid(userName.value)) {
       userName.classList.remove("form-input");
@@ -103,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // enable the next button if the user enters the name
   document
-    .getElementById("user-name")
+    .getElementById("first-name")
     .addEventListener("input", function (event) {
       const button = document.getElementsByClassName("addNextStep");
       if (event.target.value.length > 0) {
@@ -124,7 +137,8 @@ document.addEventListener("DOMContentLoaded", function () {
   chatInput.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      sendMessage(messages);
+      widgetLoader[0].style.display = "flex";
+      sendMessage(messages, widgetLoader);
     }
   });
 
@@ -132,17 +146,18 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("send-message")
     .addEventListener("click", function () {
-      sendMessage(messages);
+      widgetLoader[0].style.display = "flex";
+      sendMessage(messages, widgetLoader);
     });
 });
 
 // render the organization details
-function renderOrganizationDetails(organizationDetails) {
-  if(organizationDetails.logo){
-    document.querySelector(".organization-image").src = organizationDetails.logo;
+function renderOrganizationDetails(brandName, brandLogo) {
+  if (brandLogo) {
+    document.querySelector(".organization-image").src = brandLogo;
   }
-  if( organizationDetails.name){
-    document.querySelector(".organization-name").textContent = organizationDetails.name;
+  if (brandName) {
+    document.querySelector(".organization-name").textContent = brandName;
   }
 }
 
@@ -152,25 +167,22 @@ function renderAssistantDetails(assistantDetails) {
     assistantDetails.greetingText;
   document.getElementById("host-name").textContent =
     assistantDetails.assistantName;
-    if( assistantDetails.assistantAvatar){
-      document.querySelector("#host-image").src = assistantDetails.assistantAvatar ;
-    }
+  if (assistantDetails.assistantAvatar) {
+    document.querySelector("#host-image").src =
+      assistantDetails.assistantAvatar;
+  }
 }
 
 // get the user details from the cookie
 function getUserDetails() {
-  const userDetailsCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("userDetails="));
-  const userDetails = userDetailsCookie
-    ? JSON.parse(userDetailsCookie.split("=")[1])
-    : null;
+  let userDetails = getUserDetailsFromCookies();
 
   // If user details exist, hide form and show chat
   if (userDetails) {
-    const nameInput = document.getElementById("user-name");
-    nameInput.value = userDetails.name;
-    addNextStep(userDetails.phone);
+    const nameInput = document.getElementById("first-name");
+    nameInput.value = userDetails.firstName;
+    addNextStep(userDetails.lastName);
+    addPhoneStep(userDetails.phone);
     handleEmailSection(userDetails.email);
     handleFormSubmission();
   }
@@ -181,7 +193,28 @@ function addNextStep(value) {
   // hide the previous button after clicking
   hideElements(".addNextStep");
   // disable input field
-  disableInput("user-name");
+  disableInput("first-name");
+
+  const lastNameSection = createMessageElement(`
+    <span>Please enter your last name</span>
+    <div class="form-group">
+        <div class="form-input-error-container">
+          <input type="tel" id="last-name" placeholder="Enter your last name" class="form-input last-name" ${
+            value && `value=${value}`
+          } />
+          <span class="error-message last-name-error">Please enter a valid last name.</span>
+        </div>
+        <button class="next-btn add-phone" disabled>Next</button>
+    </div>
+  `);
+  appendAndScroll(lastNameSection);
+}
+
+function addPhoneStep(value) {
+  // hide the previous button after clicking
+  hideElements(".add-phone");
+  // disable input field
+  disableInput("last-name");
 
   const emailSection = createMessageElement(`
     <span>What is your phone number?</span>
@@ -200,9 +233,17 @@ function addNextStep(value) {
 
 // next button enable/disable
 function enableNextButton(event) {
-  if (event.target.id === "user-phone" || event.target.id === "user-email") {
+  if (
+    event.target.id === "last-name" ||
+    event.target.id === "user-phone" ||
+    event.target.id === "user-email"
+  ) {
     const buttonClass =
-      event.target.id === "user-phone" ? "add-email" : "form-submit";
+      event.target.id === "user-phone"
+        ? "add-email"
+        : event.target.id === "last-name"
+        ? "add-phone"
+        : "form-submit";
     const button = document.getElementsByClassName(buttonClass)[0];
     button.disabled = event.target.value.length === 0;
     button.style.color =
@@ -233,13 +274,13 @@ function handleEmailSection(value) {
 }
 
 // handle form submission
-function handleFormSubmission() {
+async function handleFormSubmission() {
   const userDetails = {
-    name: document.getElementById("user-name")?.value,
+    firstName: document.getElementById("first-name")?.value,
+    lastName: document.getElementById("last-name")?.value,
     phone: document.getElementById("user-phone")?.value,
     email: document.getElementById("user-email")?.value,
   };
-
   if (Object.values(userDetails).some((value) => !value)) {
     alert("Please fill all the fields");
     return;
@@ -247,20 +288,10 @@ function handleFormSubmission() {
 
   hideElements(".form-submit");
   disableInput("user-email");
-
-  // Show completion message
-  const completionMessage = createMessageElement(
-    "Someone on our team will contact you shortly."
-  );
-
   document.querySelector(".chat-input").style.display = "flex";
 
   // Convert user details to JSON string and store in cookie
-  document.cookie = `userDetails=${JSON.stringify(
-    userDetails
-  )}; path=/; max-age=86400`; // expires in 24 hours
-
-  appendAndScroll(completionMessage);
+  document.cookie = `userDetails=${JSON.stringify(userDetails)}; path=/`;
 }
 
 function createMessageElement(innerHTML) {
@@ -311,6 +342,8 @@ function renderMessages(messages, assistantDetails) {
     if (message.isGuest) {
       messageDiv.innerHTML = `<div class="sent"><span>${message.text}</span></div>`;
     } else {
+      messageDiv.style.width = "85%";
+
       // Check if this is the first unread message
       let isFirstUnreadMessage =
         !message.isread && !messages.slice(0, index).some((m) => !m.isread);
@@ -325,7 +358,11 @@ function renderMessages(messages, assistantDetails) {
       messageDiv.innerHTML = `
       ${
         index + 1 === messages.length || messages[index + 1].isGuest
-          ? `<img src="${message.logo ? message.logo: "https://ehtishamabbas.github.io/chat_widget/assets/images/host_default.svg"}" alt="" class="sender-image" id="host-image"> `
+          ? `<img src="${
+              message.logo
+                ? message.logo
+                : "https://ehtishamabbas.github.io/chat_widget/assets/images/host_default.svg"
+            }" alt="" class="sender-image" id="host-image"> `
           : ""
       }
       <div class="received_message" ${
@@ -353,9 +390,29 @@ function renderMessages(messages, assistantDetails) {
 }
 
 // handle the send message
-function sendMessage(messages) {
+async function sendMessage(messages, widgetLoader) {
   let message = document.getElementById("user-message").value;
+  let userDetails = getUserDetailsFromCookies();
+  const brand_id = localStorage.getItem("brandId");
+
   if (message) {
+    const payload = {
+      brand_id: parseInt(brand_id),
+      booking_id: null,
+      property_id: null,
+      contact_id: null,
+      email: userDetails.email,
+      phone: userDetails.phone,
+      first_name: userDetails.firstName,
+      last_name: userDetails.lastName,
+      middle_name: null,
+      message_body: message,
+      sender_type: "guest",
+      message_type: "chat_widget",
+    };
+
+    await initiateWidget(payload);
+
     let newDiv = document.createElement("div");
     newDiv.className = "sent";
     newDiv.innerHTML = `
@@ -369,15 +426,26 @@ function sendMessage(messages) {
       timestamp: new Date().toISOString(),
       status: "read",
     };
-    messages.push(newMessage);
-    // Convert user details to JSON string and store in cookie
-    document.cookie = `conversations=${JSON.stringify(
-      messages
-    )}; path=/; max-age=86400`; // expires in 24 hours
+    if (messages.length > 0) {
+      messages.push(newMessage);
+      document.getElementById("messages").appendChild(newDiv);
+    } else {
+      messages.push(newMessage);
+      document.getElementById("messages").appendChild(newDiv);
 
-    document.getElementById("messages").appendChild(newDiv);
+      addHostMessage();
+      messages.push({
+        ...newMessage,
+        isGuest: false,
+        text: "Someone on our team will contact you shortly.",
+      });
+    }
+    // Convert user details to JSON string and store in cookie
+    document.cookie = `conversations=${JSON.stringify(messages)}; path=/`;
+
     scrollToBottom();
     document.getElementById("user-message").value = "";
+    widgetLoader[0].style.display = "none";
   }
 }
 
@@ -404,6 +472,9 @@ function handleFormEvents(event) {
   if (event.target.classList.contains("add-email")) {
     handlePhoneValidation();
   }
+  if (event.target.classList.contains("add-phone")) {
+    handleLastName();
+  }
   if (event.target.classList.contains("form-submit")) {
     handleEmailValidation();
   }
@@ -420,6 +491,23 @@ function handlePhoneValidation() {
   if (isValid) {
     // add email section
     handleEmailSection();
+  }
+}
+
+// validate last name
+function handleLastName() {
+  let lastName = document.getElementById("last-name");
+  let errorDiv = document.getElementsByClassName("last-name-error");
+  if (isValid(lastName.value)) {
+    lastName.classList.remove("form-input");
+    lastName.classList.add("form-input-withError");
+    errorDiv[0].style.display = "block";
+    return;
+  } else {
+    lastName.classList.remove("form-input-withError");
+    lastName.classList.add("form-input");
+    errorDiv[0].style.display = "none";
+    addPhoneStep("");
   }
 }
 
@@ -473,12 +561,123 @@ function markMessagesAsRead(messages) {
   }
 }
 
+function showWidget(widgetLoader, widgetHeader, widgetBody) {
+  widgetLoader[0].style.display = "none";
+  widgetHeader[0].style.visibility = "visible";
+  widgetBody[0].style.visibility = "visible";
+}
 
-function showWidget (widgetLoader, widgetHeader, widgetBody){
-  // Show the widget after 2 seconds
-  setTimeout(function () {
-    widgetLoader[0].style.display = "none";
-    widgetHeader[0].style.visibility = "visible";
-    widgetBody[0].style.visibility = "visible";
-  }, 2000);
+async function addHostMessage() {
+  const hostImageUrl =
+    "https://ehtishamabbas.github.io/chat_widget/assets/images/host_default.svg";
+  const responseMessage = "Someone on our team will contact you shortly.";
+
+  // Create message thread container
+  const threadContainer = document.createElement("div");
+  threadContainer.className = "single-thread";
+  threadContainer.style.width = "85%";
+
+  // Create host message content
+  const messageContent = `
+    <img
+      src="${hostImageUrl}"
+      alt="Host"
+      class="sender-image"
+      id="host-image"
+    />
+    <div class="received_message">
+      <span>${responseMessage}</span>
+    </div>
+  `;
+  threadContainer.innerHTML = messageContent;
+
+  // Create host name container
+  const hostNameContainer = document.createElement("div");
+  hostNameContainer.className = "host-name";
+  hostNameContainer.id = "host-name";
+  hostNameContainer.innerHTML = "<span>Assistant</span>";
+
+  // Append elements to messages container
+  const messagesContainer = document.getElementById("messages");
+  messagesContainer.appendChild(threadContainer);
+  messagesContainer.appendChild(hostNameContainer);
+}
+
+async function initiateWidget(payload) {
+  try {
+    const token = localStorage.getItem("access_token");
+    const response = await fetch(
+      "http://localhost:8000/apis/ggwidget/initiate-widget",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Widget initiated successfully:", data);
+  } catch (error) {
+    console.error("Error initiating widget:", error);
+  }
+}
+
+async function getChatWidgetSettings(brandId) {
+  try {
+    const token = localStorage.getItem("access_token");
+    const response = await fetch(
+      `http://localhost:8000/apis/ggwidget/get/${brandId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data && data.response) {
+      return { ...data.response.data };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.log("🚀 ~ getChatWidgetSettings ~ error:", error);
+    return null;
+  }
+}
+
+function getUserDetailsFromCookies() {
+  const userDetailsCookie = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("userDetails="));
+  const userDetails = userDetailsCookie
+    ? JSON.parse(userDetailsCookie.split("=")[1])
+    : null;
+
+  return userDetails;
+}
+
+function getQueryParam(param) {
+  var scripts = document.getElementsByTagName("script");
+  for (var i = 0; i < scripts.length; i++) {
+    var src = scripts[i].src;
+    if (src.includes("embed.js")) {
+      var urlParams = new URLSearchParams(src.split("?")[1]);
+      return urlParams.get(param);
+    }
+  }
+  return null;
 }
