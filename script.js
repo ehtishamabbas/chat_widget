@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     localStorage.setItem("brandId", brandId);
   }
 
+  let brandAndUserDetails = await getBrandAndUserData(brandId)
+
   let widgetSettings = await getChatWidgetSettings(brandId);
 
   if (
@@ -37,8 +39,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   // get the conversation details from the cookie
   let conversations = await getConversationDetail();
   const assistantDetails = {
-    assistantName: "Alice",
-    assistantAvatar: "",
+    assistantName: brandAndUserDetails?.user?.firstname ?  brandAndUserDetails.user.firstname:  "",
+    assistantAvatar: brandAndUserDetails?.user?.avatar ? brandAndUserDetails.user.avatar :  "",
     greetingText: widgetSettings.greeting_text
       ? widgetSettings.greeting_text
       : "",
@@ -574,7 +576,7 @@ async function getConversationDetail() {
 
     const data = await response.json();
     // Merge and sort conversations
-    const allConversations = [...cookiesConversations, ...data];   
+    const allConversations = [...cookiesConversations, ...data];
 
     const updatedConversation = allConversations.map((item) => ({
       isGuest: item.isGuest !== undefined ? item.isGuest : item.is_income,
@@ -582,9 +584,10 @@ async function getConversationDetail() {
       messageId: item.id !== undefined ? item.id : item.messageId,
       status: "unread",
       text: item.message_body !== undefined ? item.message_body : item.text,
-      timestamp: item.created_at !== undefined ? item.created_at : item.timestamp,
+      timestamp:
+        item.created_at !== undefined ? item.created_at : item.timestamp,
     }));
-    
+
     const uniqueConversations = Array.from(
       new Map(updatedConversation.map((item) => [item.text, item])).values()
     );
@@ -741,4 +744,33 @@ function getQueryParam(param) {
     }
   }
   return null;
+}
+
+async function getBrandAndUserData(brandId) {
+  try {
+    const token = localStorage.getItem("access_token");
+
+    let response = await fetch(
+      `http://localhost:8000/apis/ggwidget/get-brand-info/${brandId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {brand: {...data.response.data.brand}, user: {...data.response.data.user} }
+  } catch (error) {
+    console.log("🚀 ~ getBrandAndUserData ~ error:", error)
+    return null;
+    
+  }
+
 }
