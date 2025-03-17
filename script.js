@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   let widgetSettings = await getChatWidgetSettings(brandId);
-  
+
   if (
     widgetSettings &&
     Object.keys(widgetSettings).length > 0 &&
@@ -35,11 +35,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   getUserDetails();
 
   // get the conversation details from the cookie
-  let conversations = getConversationDetail();
+  let conversations = await getConversationDetail();
   const assistantDetails = {
     assistantName: "Alice",
     assistantAvatar: "",
-    greetingText: widgetSettings.greeting_text ?  widgetSettings.greeting_text :  "",
+    greetingText: widgetSettings.greeting_text
+      ? widgetSettings.greeting_text
+      : "",
   };
 
   let messages = [];
@@ -538,11 +540,62 @@ function generateMessageId() {
 }
 
 // get the conversation array from the cookie
-function getConversationDetail() {
+async function getConversationDetail() {
   const conversationCookie = document.cookie
     .split("; ")
     .find((row) => row.startsWith("conversations="));
-  return conversationCookie ? JSON.parse(conversationCookie.split("=")[1]) : [];
+  const cookiesConversations = conversationCookie
+    ? JSON.parse(conversationCookie.split("=")[1])
+    : [];
+  const contactInfo = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("contactInfo="));
+
+  const contactDetail = contactInfo
+    ? JSON.parse(contactInfo.split("=")[1])
+    : [];
+  const token = localStorage.getItem("access_token");
+
+  try {
+    const response = await fetch(
+      `http://localhost:8000/apis/inbox/conversation/${contactDetail.conversationId}/messages?contact_id=${contactDetail.contactId}&draft=false`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    // Merge and sort conversations
+    const allConversations = [...cookiesConversations, ...data];   
+
+    const updatedConversation = allConversations.map((item) => ({
+      isGuest: item.isGuest !== undefined ? item.isGuest : item.is_income,
+      isread: item.isread !== undefined ? item.isread : false,
+      messageId: item.id !== undefined ? item.id : item.messageId,
+      status: "unread",
+      text: item.message_body !== undefined ? item.message_body : item.text,
+      timestamp: item.created_at !== undefined ? item.created_at : item.timestamp,
+    }));
+    
+    const uniqueConversations = Array.from(
+      new Map(updatedConversation.map((item) => [item.text, item])).values()
+    );
+
+    uniqueConversations.sort(
+      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+    );
+    return uniqueConversations;
+  } catch (error) {
+    return cookiesConversations;
+  }
 }
 
 function markMessagesAsRead(messages) {
@@ -624,6 +677,14 @@ async function initiateWidget(payload) {
 
     const data = await response.json();
     console.log("Widget initiated successfully:", data);
+
+    const contactObject = {
+      contactId: data.response.data.contact.unified_contact_id,
+      conversationId: data.response.data.conversation.unified_conversation_id,
+    };
+
+    // Convert user details to JSON string and store in cookie
+    document.cookie = `contactInfo=${JSON.stringify(contactObject)}; path=/`;
   } catch (error) {
     console.error("Error initiating widget:", error);
   }
